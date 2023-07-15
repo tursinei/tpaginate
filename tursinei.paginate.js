@@ -16,6 +16,8 @@
         reload: false,
         classBtnUpdate: "btn btn-xs btn-info btn-update",
         classBtnDelete: "btn btn-xs btn-danger btn-delete",
+        searchPlaceholder : 'Search...',
+        onReady : null,
     };
     let TABLE = null;
     let keyPrefix = '_tPaginate';
@@ -38,31 +40,44 @@
                     divScrollable = TABLE.wrap('<div class="table-scrollable"></div>').parent();
                 }
                 $(this).data(keyPrefix, setting);
-                $.ajax({
-                    data : setting.data,
-                    url : setting.url,
-                    dataType : 'JSON',
-                    headers : {
-                        'tpaginate' : 'initial-table'
-                    },
-                    success : function(res) {
-                        if (setting.searching) {
-                            genCari(divScrollable);
-                        }
-                        generateTr(res);
-                        genPages(divScrollable, res);
-                    }
-                });
+                getInitData(setting,divScrollable);
             })
         },
         reload :  function () {
             return this.each(function() {
                 var settings = $(this).data(keyPrefix);
                 settings.reload = true;
-                $('ul.pagination > li.active > a').trigger('click');
+                let divScrollable = TABLE.parent(".table-scrollable");
+                if($('ul.pagination > li.active > a').length == 1){
+                    $('ul.pagination > li.active > a').trigger('click');
+                }else {
+                    getInitData(settings,divScrollable);
+                }
             })
         }
     };
+
+    function getInitData(setting,divScrollable){
+        $.ajax({
+            data : setting.data,
+            url : setting.url,
+            dataType : 'JSON',
+            headers : {
+                'tpaginate' : 'initial-table'
+            },
+            success : function(res) {
+                if (setting.searching) {
+                    genCari(divScrollable);
+                }
+                generateTr(res);
+                genPages(divScrollable, res);
+                if (typeof setting.onReady == 'function'){
+                    setting.onReady(TABLE);
+                }
+            }
+        });
+    }
+
 
     $.fn.tPaginate = function (method) {
         if ( methods[method] ) {
@@ -123,8 +138,8 @@
         if (divCari.length == 0) {
             divCari = $("<div></div>").addClass("col-md-12 div-search text-end");
             let sField = $('<input id="tPaginate-search">')
-                .addClass("form-control form-control-sm")
-                .attr("placeholder", "Search");
+                .addClass("form-control form-control-sm mb-2")
+                .attr("placeholder", setting.searchPlaceholder);
             sField.on("input", function () {
                 let data = setting.data;//{ tsearch: this.value };
                 data.tsearch = this.value;
@@ -152,7 +167,7 @@
         let divPagination = divScrollable.next("div.row");
         if (divPagination.length == 0) {
             divPagination = $('<div class="row"></div>').insertAfter(divScrollable);
-            divPagination.append('<div class="col-md-12 text-end"></div>');
+            divPagination.append('<div class="col-md-12 text-end mt-1"></div>');
         }
         let ulPagination = $('<ul class="pagination float-end"></ul>');
         if(setting.simple){
