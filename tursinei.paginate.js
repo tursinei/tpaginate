@@ -45,11 +45,15 @@
         },
         reload :  function () {
             return this.each(function() {
-                var settings = $(this).data(keyPrefix);
+                TABLE = $(this);
+                var settings = TABLE.data(keyPrefix);
                 settings.reload = true;
                 let divScrollable = TABLE.parent(".table-scrollable");
-                if($('ul.pagination > li.active > a').length == 1){
-                    $('ul.pagination > li.active > a').trigger('click');
+                let aActive = divScrollable
+                    .next("div.row")
+                    .find("ul.pagination > li.active > a");
+                if(aActive.length == 1){
+                    aActive.trigger('click');
                 }else {
                     getInitData(settings,divScrollable);
                 }
