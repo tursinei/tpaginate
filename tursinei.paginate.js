@@ -1,6 +1,7 @@
 /**
  * A jquery plugin Pagination integrated with laravel paginate function via ajax .
  * Copyright (c) 2022 Velly tursinei;
+ * Version 1.2.0
  */
 (function ($) {
     let defaultSetting = {
@@ -18,6 +19,7 @@
         classBtnDelete: "btn btn-xs btn-danger btn-delete",
         searchPlaceholder : 'Search...',
         onReady : null,
+        onError : null,
     };
     let TABLE = null;
     let keyPrefix = '_tPaginate';
@@ -77,6 +79,13 @@
                 genPages(divScrollable, res);
                 if (typeof setting.onReady == 'function'){
                     setting.onReady(TABLE);
+                }
+            },
+            error : function(res, status, message) {
+                if (typeof setting.onError == 'function'){
+                    setting.onError(res,status, message);
+                } else {
+                    alert(res.responseText);
                 }
             }
         });

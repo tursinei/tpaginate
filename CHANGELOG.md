@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.2.0
+- Add onError property when init tPaginate
+
 ## v1.1.0
 - Fix the bug that does not reload after updating data if in simple mode
 - Fix bug for method reload tPaginate when there are more than one table in one page
@@ -10,5 +13,4 @@
 - Release
 
 ### Removed
-
 - Some packages/libraries from acknowledgements Is no longer use
