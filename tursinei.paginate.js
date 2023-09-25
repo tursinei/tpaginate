@@ -20,6 +20,8 @@
         searchPlaceholder : 'Search...',
         onReady : null,
         onError : null,
+        onAlways: null,
+        onPageClick : null,
     };
     let TABLE = null;
     let keyPrefix = '_tPaginate';
@@ -59,7 +61,7 @@
                 }else {
                     getInitData(settings,divScrollable);
                 }
-            })
+            });
         }
     };
 
@@ -88,6 +90,10 @@
                     alert(res.responseText);
                 }
             }
+        }).always(function(res) {
+            if (typeof setting.onAlways == 'function'){
+                setting.onAlways(res);
+            }        
         });
     }
 
@@ -113,7 +119,7 @@
                 trObj.append(td[0].outerHTML);
             }
             setting.cols.forEach((column) => {
-                let td = $("<td></td>").appendTo(trObj)
+                let td = $("<td></td>").appendTo(trObj);
                 if (typeof column == "object") {
                     td.html(obj[column.key]).addClass(column.class);
                     // dihilangkan soalnya sama saja dengan column is function
@@ -121,14 +127,16 @@
                     //     td.html(column.custom(obj[column.key],trOj));
                     // }
                 } else if(typeof column == 'function'){
-                    td.html(column(obj,td)) // if column is function
+                    td.html(column(obj, td)); // if column is function
                 } else {
                     td.text(obj[column]);
                 }
             });
             if (setting.useButtons) {
-                let btnEdit = '<button type="button" data-id="'+obj[setting.colId]+'" class="'+setting.classBtnUpdate+'" ><i class="fa fa-pencil"></i></button>';
-                let btnDel = '<button type="button" data-id="'+obj[setting.colId]+'" class="'+setting.classBtnDelete+'" ><i class="fa fa-trash"></i></button>';
+                let btnEdit = '<button type="button" data-id="'+obj[setting.colId]+'" class="'+
+                            setting.classBtnUpdate+'" ><i class="fa fa-pencil"></i></button>';
+                let btnDel = '<button type="button" data-id="'+obj[setting.colId]+'" class="'+
+                            setting.classBtnDelete+'" ><i class="fa fa-trash"></i></button>';
                 let td = $("<td></td>")
                     .html(btnEdit + "&nbsp;" + btnDel)
                     .addClass("text-center");
@@ -230,7 +238,8 @@
         let setting = $(TABLE).data(keyPrefix);
         $(a).click(function (evt) {
             evt.preventDefault();
-            if (!$(this).parent().hasClass("active") && !$(this).parent().hasClass("disabled") || setting.reload) {
+            if (!$(this).parent().hasClass("active") && 
+                    !$(this).parent().hasClass("disabled") || setting.reload) {
                 let data = setting.data , url = this.href;
                 if(setting.searching){
                     data.tsearch = $("#tPaginate-search").val();
@@ -252,6 +261,10 @@
                     success : function (res) {
                         generateTr(res);
                         genPages(divScrollable, res);
+                    },
+                }).always(function (params) {
+                    if (typeof setting.onPageClick == "function") {
+                        setting.onPageClick(params);
                     }
                 });
             }
