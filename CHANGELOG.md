@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.3.0
+- Bug search input when change data in table with spesific parameter im url
+
 ## v1.2.0
 - Add onError property when init tPaginate, an errot even when initiate tPaginate
 - Add onAlways property when init tPaginate. an even executed always after initiate tPaginate

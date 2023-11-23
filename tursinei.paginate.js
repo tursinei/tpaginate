@@ -1,7 +1,7 @@
 /**
  * A jquery plugin Pagination integrated with laravel paginate function via ajax .
  * Copyright (c) 2022 Velly tursinei;
- * Version 1.2.0
+ * Version 1.3.0
  */
 (function ($) {
     let defaultSetting = {
@@ -156,30 +156,40 @@
     function genCari(divScrollable) {
         let divCari = divScrollable.prev("div.row").find("div.div-search");
         let setting = $(TABLE).data(keyPrefix);
+        
+        let sField = null;
         if (divCari.length == 0) {
             divCari = $("<div></div>").addClass("col-md-12 div-search text-end");
-            let sField = $('<input id="tPaginate-search">')
+            sField = $('<input id="tPaginate-search">')
                 .addClass("form-control form-control-sm mb-2")
                 .attr("placeholder", setting.searchPlaceholder);
-            sField.on("input", function () {
-                let data = setting.data;//{ tsearch: this.value };
-                data.tsearch = this.value;
-                $.ajax({
-                    url : setting.url,
-                    dataType : 'JSON',
-                    data : data,
-                    headers : {
-                        'tpaginate' : 'searching'
-                    },
-                    success : function(res) {
-                        generateTr(res);
-                        genPages(divScrollable, res);
-                    }
-                });
-            });
+            
             $("<label></label>").append(sField).appendTo(divCari);
             let divRow = $('<div class="row"></div>').append(divCari);
             divRow.insertBefore(divScrollable);
+        } else {
+            sField = divCari.find("input#tPaginate-search");
+            sField.off("keyup");
+        }
+        sField.on("keyup", function () {
+          let data = setting.data; 
+          data.tsearch = this.value;
+          $.ajax({
+            url: setting.url,
+            dataType: "JSON",
+            data: data,
+            headers: {
+              tpaginate: "searching",
+            },
+            success: function (res) {
+              generateTr(res);
+              genPages(divScrollable, res);
+            },
+          });
+        }); 
+        
+        if (sField.val() != "") {
+          sField.trigger("keyup");
         }
     }
 
