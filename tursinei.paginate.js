@@ -171,23 +171,31 @@
             sField = divCari.find("input#tPaginate-search");
             sField.off("keyup");
         }
+
+        let typingEvent;
         sField.on("keyup", function () {
           let data = setting.data; 
           data.tsearch = this.value;
-          $.ajax({
-            url: setting.url,
-            dataType: "JSON",
-            data: data,
-            headers: {
-              tpaginate: "searching",
-            },
-            success: function (res) {
-              generateTr(res);
-              genPages(divScrollable, res);
-            },
-          });
-        }); 
-        
+          clearTimeout(typingEvent);
+          typingEvent = setTimeout(() => {
+            if(data.tsearch == ""){
+                return;
+            }
+            $.ajax({
+              url: setting.url,
+              dataType: "JSON",
+              data: data,
+              headers: {
+                tpaginate: "searching",
+              },
+              success: function (res) {
+                generateTr(res);
+                genPages(divScrollable, res);
+              },
+            });
+          }); 
+        }, 650);                  
+          
         if (sField.val() != "") {
           sField.trigger("keyup");
         }
