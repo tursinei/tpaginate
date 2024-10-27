@@ -1,5 +1,5 @@
 # jQuery tPagination Plugin Documentation
-
+### Just Small jQuery Plugin for supporting paginate function in laravel :D.
 ## Overview
 This plugin is designed to provide pagination functionality integrated with Laravel's paginate function using AJAX. It supports features like searching, entry count selection, and customizable columns, making it suitable for data table pagination in a Laravel-based web application.
 
