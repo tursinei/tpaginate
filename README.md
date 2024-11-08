@@ -52,15 +52,15 @@ The plugin accepts various options to customize its behavior. Here are the avail
 | `entryPage` |	boolean |	false |	Enables entry count selector. 
 | `cols` |	array |	[] |	Array of column names or custom render functions. 
 | `colId` |	string |	"" |	Column name for primary key (required if useButtons  is true).
-| `url` |	string |	window |.location.href	URL for fetching data (required). 
+| `url` |	string |	window.location.href |	URL for fetching data (required). 
 | `data` |	object |	{} |	Additional data to send with the AJAX request. 
 | `state` |	boolean |	true |	Retain state of pagination. 
 | `simple` |	boolean |	false |	Enables simple pagination (previous/next only). 
 | `reload` |	boolean |	false |	Reload table on pagination click. 
 |`classBtnUpdate` |	string |	"btn | btn-xs btn-info btn-update"	CSS classes f or  |the update button
 | `classBtnDelete` |	string |	"btn | btn-xs btn-danger btn-delete"	CSSclasses  |for the delete button.
-| `searchPlaceholder` |	string |	"Search |..."	Placeholder text for the search  field.
-| `entryPageNumber` |	array |	[15 |, 30, 75, 100]	Entry page size options. 
+| `searchPlaceholder` |	string |	"Search..."	| Placeholder text for the search  field.
+| `entryPageNumber` |	array |	[15, 30, 75, 100] |	Entry page size options. 
 | `onReady` |	function |	null |	Callback triggered when table is ready. 
 | `onError` |	function |	null |	Callback triggered when there is an error. 
 | `onAlways` |	function |	null |	Callback triggered after each AJAX request. 
