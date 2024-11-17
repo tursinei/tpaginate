@@ -57,8 +57,8 @@ The plugin accepts various options to customize its behavior. Here are the avail
 | `state` |	boolean |	true |	Retain state of pagination. 
 | `simple` |	boolean |	false |	Enables simple pagination (previous/next only). 
 | `reload` |	boolean |	false |	Reload table on pagination click. 
-|`classBtnUpdate` |	string |	"btn | btn-xs btn-info btn-update"	CSS classes f or  |the update button
-| `classBtnDelete` |	string |	"btn | btn-xs btn-danger btn-delete"	CSSclasses  |for the delete button.
+|`classBtnUpdate` |	string |	"btn btn-xs btn-info btn-update" |	CSS classes for the update button
+| `classBtnDelete` |	string |	"btn btn-xs btn-danger btn-delete" |	CSS classes for the delete button.
 | `searchPlaceholder` |	string |	"Search..."	| Placeholder text for the search  field.
 | `entryPageNumber` |	array |	[15, 30, 75, 100] |	Entry page size options. 
 | `onReady` |	function |	null |	Callback triggered when table is ready. 
