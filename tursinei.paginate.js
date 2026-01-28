@@ -1,7 +1,7 @@
 /**
  * A jquery plugin Pagination integrated with laravel paginate function via ajax .
  * Copyright (c) 2022 Velly tursinei;
- * Version 1.3.0
+ * Version 1.2.0
  */
 (function ($) {
     let defaultSetting = {
@@ -23,7 +23,7 @@
         onAlways: null,
         onPageClick : null,
     };
-    let TABLE = null;
+
     let keyPrefix = '_tPaginate';
 
     let methods =  {
@@ -34,7 +34,7 @@
                     throw 'Key url Undefined';
                 }
 
-                TABLE = $(this);
+                let TABLE = $(this);
                 if (setting.colId == "" && setting.useButtons) {
                     throw 'Key colId as column name of primary key from table Undefined, as long as Key useButtons is true ';
                 }
@@ -44,12 +44,12 @@
                     divScrollable = TABLE.wrap('<div class="table-scrollable"></div>').parent();
                 }
                 $(this).data(keyPrefix, setting);
-                getInitData(setting,divScrollable);
+                getInitData(setting,divScrollable, TABLE);
             })
         },
         reload :  function () {
             return this.each(function() {
-                TABLE = $(this);
+                let TABLE = $(this);
                 var settings = TABLE.data(keyPrefix);
                 settings.reload = true;
                 let divScrollable = TABLE.parent(".table-scrollable");
@@ -59,13 +59,13 @@
                 if(aActive.length == 1){
                     aActive.trigger('click');
                 }else {
-                    getInitData(settings,divScrollable);
+                    getInitData(settings,divScrollable, TABLE);
                 }
             });
         }
     };
 
-    function getInitData(setting,divScrollable){
+    function getInitData(setting,divScrollable,TABLE){
         $.ajax({
             data : setting.data,
             url : setting.url,
@@ -75,10 +75,10 @@
             },
             success : function(res) {
                 if (setting.searching) {
-                    genCari(divScrollable);
+                    genCari(divScrollable, TABLE);
                 }
-                generateTr(res);
-                genPages(divScrollable, res);
+                generateTr(res, TABLE);
+                genPages(divScrollable, res, TABLE);
                 if (typeof setting.onReady == 'function'){
                     setting.onReady(TABLE);
                 }
@@ -93,7 +93,7 @@
         }).always(function(res) {
             if (typeof setting.onAlways == 'function'){
                 setting.onAlways(res);
-            }        
+            }
         });
     }
 
@@ -108,7 +108,7 @@
         }
     };
 
-    function generateTr(e) {
+    function generateTr(e, TABLE) {
         let tr = "",
             no = e.from;
         let setting = $(TABLE).data(keyPrefix);
@@ -145,6 +145,16 @@
             tr += trObj[0].outerHTML;
             no++;
         });
+        if(tr == ''){
+            let cols = setting.cols.length;
+            if(setting.numbering){
+                cols++;
+            }
+            if(setting.useButtons){
+                cols++;
+            }
+            tr = '<tr><td class="text-center" colspan="'+cols+'">There is no data available</td></tr>';
+        }
         let tbody = TABLE.find("tbody");
         if (tbody.length == 0) {
             $("<tbody></tbody>").html(tr);
@@ -153,55 +163,50 @@
         }
     }
 
-    function genCari(divScrollable) {
+    function genCari(divScrollable, TABLE) {
         let divCari = divScrollable.prev("div.row").find("div.div-search");
         let setting = $(TABLE).data(keyPrefix);
-        
-        let sField = null;
         if (divCari.length == 0) {
             divCari = $("<div></div>").addClass("col-md-12 div-search text-end");
-            sField = $('<input id="tPaginate-search">')
+            let sField = $('<input id="tPaginate-search">')
                 .addClass("form-control form-control-sm mb-2")
                 .attr("placeholder", setting.searchPlaceholder);
-            
+            sField.on("input", debounce(function(){
+                let data = setting.data; //{ tsearch: this.value };
+                data.tsearch = this.value;
+                $.ajax({
+                    url: setting.url,
+                    dataType: "JSON",
+                    data: data,
+                    headers: {
+                        tpaginate: "searching",
+                    },
+                    success: function (res) {
+                        generateTr(res, TABLE);
+                        genPages(divScrollable, res, TABLE);
+                    },
+                });
+            },500));
             $("<label></label>").append(sField).appendTo(divCari);
             let divRow = $('<div class="row"></div>').append(divCari);
             divRow.insertBefore(divScrollable);
-        } else {
-            sField = divCari.find("input#tPaginate-search");
-            sField.off("keyup");
-        }
-
-        let typingEvent;
-        sField.on("keyup", function () {
-          let data = setting.data; 
-          data.tsearch = this.value;
-          clearTimeout(typingEvent);
-          typingEvent = setTimeout(() => {
-            if(data.tsearch == ""){
-                return;
-            }
-            $.ajax({
-              url: setting.url,
-              dataType: "JSON",
-              data: data,
-              headers: {
-                tpaginate: "searching",
-              },
-              success: function (res) {
-                generateTr(res);
-                genPages(divScrollable, res);
-              },
-            });
-          }); 
-        }, 650);                  
-          
-        if (sField.val() != "") {
-          sField.trigger("keyup");
         }
     }
 
-    function genPages(divScrollable, resPaginate) {
+    function debounce(func, delay){
+        let timer;
+        return function(){
+            const context = this;
+            const args = arguments;
+
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                func.apply(context, args);
+            }, delay);
+        }
+    }
+
+    function genPages(divScrollable, resPaginate, TABLE) {
         let setting = $(TABLE).data(keyPrefix);
         let divPagination = divScrollable.next("div.row");
         if (divPagination.length == 0) {
@@ -219,7 +224,7 @@
                 '<li class="page-item '+disablePrv+'"><a class="page-link" href="'+res.prev_page_url+'">&laquo; Previous</a></li>'
             );
             ulPagination.append(liPrev);
-            eventClickPage(liPrev.find('a'), divScrollable);
+            eventClickPage(liPrev.find('a'), divScrollable, TABLE);
             if (res.next_page_url == null) {
                 disableNex = "disabled";
                 href = "#";
@@ -228,7 +233,7 @@
                 '<li class="page-item '+disableNex+'"><a class="page-link" href="'+res.next_page_url+'">Next &raquo;</a></li>'
             );
             ulPagination.append(liNext);
-            eventClickPage(liNext.find('a'), divScrollable);
+            eventClickPage(liNext.find('a'), divScrollable, TABLE);
         } else {
             resPaginate.links.forEach((link) => {
                 let disable = "",
@@ -245,18 +250,18 @@
                 let li = $(
                     '<li class="page-item '+disable+' '+active+'"><a class="page-link" href="'+href+'">'+link.label+'</a></li>'
                 );
-                eventClickPage(li.find('a'), divScrollable);
+                eventClickPage(li.find('a'), divScrollable, TABLE);
                 ulPagination.append(li);
             });
         }
         divPagination.find(".text-end").html(ulPagination);
     }
 
-    function eventClickPage(a, divScrollable) {
+    function eventClickPage(a, divScrollable, TABLE) {
         let setting = $(TABLE).data(keyPrefix);
         $(a).click(function (evt) {
             evt.preventDefault();
-            if (!$(this).parent().hasClass("active") && 
+            if (!$(this).parent().hasClass("active") &&
                     !$(this).parent().hasClass("disabled") || setting.reload) {
                 let data = setting.data , url = this.href;
                 if(setting.searching){
@@ -277,8 +282,8 @@
                     },
                     dataType : 'JSON',
                     success : function (res) {
-                        generateTr(res);
-                        genPages(divScrollable, res);
+                        generateTr(res, TABLE);
+                        genPages(divScrollable, res, TABLE);
                     },
                 }).always(function (params) {
                     if (typeof setting.onPageClick == "function") {
