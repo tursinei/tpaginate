@@ -31,11 +31,11 @@ Include the plugin in your HTML and initialize it on a table element:
 
 <script>
   $('#example-table').tPaginate({
-    url: '/api/paginate',  // Endpoint untuk data paginasi
-    colId: 'id',           // Kolom primary key
-    cols: ['name', 'email', 'age'],  // Kolom yang ditampilkan
-    entryPage: true,        // Aktifkan selektor jumlah entri per halaman
-    searching: true,        // Aktifkan bidang pencarian
+    url: '/api/paginate',  // Endpoint for pagination data
+    colId: 'id',           // Primary Key Column
+    cols: ['name', 'email', 'age'],  // Header Column Tabel
+    entryPage: true,        // Activate the number of entry per page
+    searching: true,        // Activate searching field at the top right of the table
   });
 </script>
 ```
