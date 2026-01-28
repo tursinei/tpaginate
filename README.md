@@ -33,7 +33,7 @@ Include the plugin in your HTML and initialize it on a table element:
   $('#example-table').tPaginate({
     url: '/api/paginate',  // Endpoint for pagination data
     colId: 'id',           // Primary Key Column
-    cols: ['name', 'email', 'age'],  // Header Column Tabel
+    cols: ['name', 'email', 'age'],  // Header Column of the table
     entryPage: true,        // Activate the number of entry per page
     searching: true,        // Activate searching field at the top right of the table
   });
